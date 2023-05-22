@@ -1,22 +1,9 @@
 <?php
-
-    // //$username = $_POST['username'] ?? '';
-    // //$password = $_POST['password'] ?? '';
-    // if(isset($_POST['username'])&&isset($_POST['password'])){
-    //     echo $username;
-    //     
-    // 
-    //     echo $password;}
     session_start();
    
     $userName = $_SESSION['username']; 
     $userPass = $_SESSION['password'];
     
-    //echo $userName."+".$userPass;
-
-    
-
-    // Connect to database
     try {
         $conn = new PDO("mysql:host=localhost:3307;dbname=BTTH02", 'root', '');
     } catch (PDOException $pe) {
@@ -26,20 +13,18 @@
     $stmt_nameSV = $conn->prepare('SELECT id_sv,name from students where id_user in (SELECT id_user from users where username = :username)');
     $stmt_nameSV -> bindValue(':username',$userName,PDO::PARAM_STR);
     $stmt_nameSV->execute();
-    // Lấy danh sách kết quả
+
     $names = $stmt_nameSV->fetchAll();
 
-
-   $sql_classes =  $conn->prepare('SELECT classname from classes');
-   $sql_classes->execute();
-   $classes = $sql_classes->fetchAll();
+    $sql_classes =  $conn->prepare('SELECT classname from classes');
+    $sql_classes->execute();
+    $classes = $sql_classes->fetchAll();
 
     $Noti ="";
 if($_SERVER['REQUEST_METHOD']=='POST' ){
     $id_sv = $_POST['id_sv'];
     $classname = $_POST['classname'];
    
-    //Get id class
     $sql = "select id_class from classes where classname = :classname";
     $stmtIDClass = $conn -> prepare($sql);
     $stmtIDClass -> bindValue(':classname',$classname,PDO::PARAM_STR);
@@ -51,9 +36,7 @@ if($_SERVER['REQUEST_METHOD']=='POST' ){
     $stmtIDatt ->execute();
     $IDatt = $stmtIDatt ->fetch();
     
-
     $currentDateTime = date('Y-m-d');
-    // Add status "attend" to db
     $insert_sql = "insert into attendance (id_attendance, day,id_class,id_sv,status) values(?,?,?,?,?)";
     $insert_attendance = $conn -> prepare($insert_sql);
     $insert_attendance -> bindValue(1,$IDatt[0]+1,PDO::PARAM_STR);
@@ -74,15 +57,12 @@ if($_SERVER['REQUEST_METHOD']=='POST' ){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Điểm danh sinh viên</title>
-    <!--Bootstrap-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
 
 </head>
 <body>
-    <!--Title-->
     <h3 class="text-center text-uppercase text-primary">Điểm Danh Sinh Viên</h3>
 
-    <!--Attendance-->
     <div class="container">
   
     <form action="./sinhviendiemdanh.php" method="POST">
@@ -103,9 +83,9 @@ if($_SERVER['REQUEST_METHOD']=='POST' ){
   
             <select name="classname" class="form-control" id="exampleFormControlSelect1">
            
-           <?php
+            <?php
         foreach ($classes as $class){
-?>
+            ?>
                 
                 <option><?=$class[0]?></option>
                 <?php }?>
@@ -118,15 +98,11 @@ if($_SERVER['REQUEST_METHOD']=='POST' ){
     </form>
     </div>
 
-
-    <!--Navigate to the showInformationAttendance.php-->
     <div class="container mt-5">
         <div class="text-center">
             <a href="thongtindiemdanh.php">Xem thông tin điểm danh</a>
         </div>
     </div>
-
-    <!--Script bootstrap-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
 </body>
 </html>
